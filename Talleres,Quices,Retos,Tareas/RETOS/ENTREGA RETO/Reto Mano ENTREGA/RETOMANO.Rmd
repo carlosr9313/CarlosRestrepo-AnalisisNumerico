@@ -1,0 +1,324 @@
+---
+title: "Reto Mano "
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Análisis Numérico 2019-1
+### Por Carlos Restrepo
+
+##En que consiste el reto:
+
+Construir un Interpolador (no necesariamente en forma polinómica) utilizando la menor cantidad de puntos k (parte superior y/o inferior o en total) y reproducir el dibujo del contorno completo del perrito sin bigotes (mejor exactitud) con la información dada:
+
+##Criterios:
+
+1.   Metodología que explique como se seleccionaron k puntos con k<n con n el total de puntos dados (Selección de más puntos o de los puntos de la parte de abajo)
+2. Algoritmo que se aplico(justificación) aplico, por ejemplo, interpolación polinómica y como soluciono el sistema
+3. Validación del resultado
+
+##Productos
+1. Algoritmo, requerimientos, codificación
+2. Codificación, tabla donde esta la interpolación en los n-k puntos (no seleccionados), el polinomio o la función interpelante. En un plano los puntos originales, los utilizados, el contorno y el interpolado (utilice el grosor mínimo para la curva).
+    + Calcular la cota de error de su método con los datos experimentales y compárela con la cota teórica.
+3. tabla donde estén los valores interpolados (tenga en cuenta los que no utilizo), los originales y el error relativo, calcule un error relativo total como la suma de los errores relativos. 
+    + Cree una función que cuente el numero aciertos y el numero de diferencias en una cifra entre su función de interpolación y los originales y impleméntelo como 
+el índice de Jaccard.
+4. Cree una función que muestre la eficiencia de su método
+5. Preguntas?
+   + El origen se puede modificar? NO
+   + Si tenemos nueva información ósea nodos como podemos implementar esa información en el algoritmo de interpolación? Anexar la información y analizar el nuevo rango para evaluar los puntos para interpolar.
+   + Su método es robusto, en el sentido que si se tienen más puntos la exactitud no disminuye? Se tiene un tope para trabajar, al aumentar los puntos se presentarán errores que pueden afectar.
+   + Suponga que tiene más puntos con más cifras significativas como se comporta su algoritmo? ¿la exactitud decae? Depende, la cantidad de datos y los números ingresados, seria observar y ver a que nivel se presentaría la falla.
+
+```{r cars}
+require(pracma)
+
+xi=c(14.65, 14.71, 14.6, 14.8, 15.2, 15.6, 15.7, 17.0, 17.6, 17.52, 17.3, 16.8, 15.4, 14.83, 14.4, 14.5, 15.0, 15.1, 15.0, 14.9, 14.6, 14.3, 14.0, 13.9, 13.8, 13.5, 13.1, 13.0, 13.3, 13.2, 13.1, 12.9, 12.4, 11.9, 11.7, 11.6, 11.3, 10.9, 10.7, 10.6, 10.6, 10.1, 9.7, 9.4, 9.3, 9.6, 9.9, 10.1, 10.2, 10.3, 9.10, 8.6, 7.5, 7.0, 6.7, 6.6, 7.70, 8.00, 8.10, 8.40,9.20, 9.30, 10, 10.2, 10.3, 10.0, 9.50)                                                                                                       
+yi=c(14.7, 14.33, 13.4, 12.33, 11.0, 10.5, 10.22, 8.20, 7.10, 6.70, 6.60, 6.80, 8.30, 8.80, 9.30, 8.80, 6.30, 5.50, 5.00, 4.70, 4.60, 4.50, 4.90, 5.40, 5.80, 6.90, 8.20, 7.60, 5.80, 4.50, 4.30, 3.90, 4.20, 5.70, 7.00, 7.90, 8.20, 7.30, 6.70, 5.50, 5.10, 4.60, 4.7, 5.0, 5.5, 7.2, 7.8, 8.60, 9.40, 10.0, 10.7, 9.9, 9.0, 9.1, 9.3, 9.7, 11.7, 12.3, 12.5, 13.0,13.91, 14.9, 16, 16.4, 16.8, 10.7, 11.0) 
+
+```
+## Seleccion de Puntos para Interpolacion
+
+#Gráfica de los puntos sin Interpolar
+
+```{r}
+print.table(xi)
+print.table(yi)
+```
+
+## Medias 
+Media #datos |  Media X  | Media Y  
+----------------- | ------------------- | ------------------- 
+34 |	12.1 |	8.5 
+
+## Regiones a trabajar 
+Regiones a trabajar|Palma|Meñique|Anular|Medio|Indice|Pulgar
+---|---|---|---|---|---|---
+6|1-6 y 60-65|6-15|15-28|28-36|36-50|50-60
+
+## Numero de rangos de interpolacion 
+# + (29)
+
+## Algoritmo Usado
+
+* Método de la forma Bari céntrica de LaGrange:
++ Recibe el intervalo de nodos para realizar la interpolación
++ La forma de LaGrange del polinomio interpelante es atractiva para propósitos teóricos. Sin embargo, se puede re-escribir en una forma que se vuelva eficiente para el cálculo computacional además de ser numéricamente mucho más estable. La forma modificada y la forma baricéntrica de LaGrange son útiles cuando queremos interpolar una función en todo un intervalo con un con un polinomio interpelante.
++ #### 1. Paquete Pracma
++ + Este paquete proporciona implementaciones en R de funciones más avanzadas en análisis numérico, con una vista especial sobre rutinas de optimización y series de tiempo.
++ #### 2. Seq
++ + La función seq () en R genera una secuencia de números.
++ + seq(from, to, by, length.out)
++ + desde, hasta, rango, tamaño de secuencia
++ #### 3. Barylag
++ + Barylag interpola los datos dados utilizando la fórmula de interpolación de Lagrange baricéntrica (vectorizada para eliminar todos los bucles).
++ + barylag(xi, yi, x)
++ + (xi) y (yi) Cordenadas para los nodos
++ + (x) Puntos de Interpolación
+
+
+## Cotas:
+
+Cota teoricas: 
+
+X| YProf | YLibro
+---|---|--
+5 |3.9|3.9
+10|7.12|7.1
+20|7|7
+26|5.15|5.2
+28|4.3|4.3
+## Resultados graficos para datos profesora
+
+```{r}
+
+#Gráfica de los puntos
+plot(xi,yi, pch=7, cex=0.5, col = "red", asp=1,xlab="X", ylab="Y", main="Mano")
+
+LineaInterpolacion<-function(inicio, final){
+  xi0 = xi[inicio:final]
+  yi0 = yi[inicio:final]
+  x0 <- seq(xi[inicio], xi[final], len=20)
+  y0 <- barylag(xi0, yi0, x0)
+  print(x0)
+  lines(x0, y0, col="blue")
+}
+
+#Borde Mano
+LineaInterpolacion (1,4)
+LineaInterpolacion (4,6)
+#Dedo der
+LineaInterpolacion (6,8)
+LineaInterpolacion (8,9)
+LineaInterpolacion (9,11)
+LineaInterpolacion (11,13)
+LineaInterpolacion (13,15)
+#Dedo Medio der
+LineaInterpolacion (15,18)
+LineaInterpolacion (18,24)
+LineaInterpolacion (24,28)
+#Dedo Medio Iz
+LineaInterpolacion (28,29)
+LineaInterpolacion (29,31)
+LineaInterpolacion (31,36)
+# Dedo Iz
+LineaInterpolacion (36,38)
+LineaInterpolacion (38,40)
+LineaInterpolacion (40,41)
+LineaInterpolacion (41,42)
+LineaInterpolacion (42,44)
+LineaInterpolacion (44,46)
+LineaInterpolacion (46,48)
+LineaInterpolacion (48,50)
+#Dedo Pulgar
+LineaInterpolacion (50,52)
+LineaInterpolacion (52,54)
+LineaInterpolacion (54,56)
+LineaInterpolacion (56,58)
+LineaInterpolacion (58,60)
+#Borde Mano
+LineaInterpolacion (60,61)
+LineaInterpolacion (61,62)
+LineaInterpolacion (62,64)
+LineaInterpolacion (64,65)
+```
+
+##Error Relativo
+
+```{r}
+errorx <- 0.01*abs(xi)
+varianciax <- var(xi)
+mediax <- mean(xi)
+Ex.abs <- sum(abs(2*xi-2*sum(xi)/67)*errorx)/(67-1)
+Ex.rel <- Ex.abs/varianciax
+print.table(Ex.rel)
+errory <- 0.01*abs(yi)
+varianciay <- var(yi)
+mediay <- mean(yi)
+Ey.abs <- sum(abs(2*yi-2*sum(yi)/67)*errory)/(67-1)
+Ey.rel <- Ey.abs/varianciay
+print.table(Ey.rel)
+```
+### 1. Error Relativo para X del 7.3%
+### 2. Errar Relativo para Y del 4.6%
+
+##### http://disi.unal.edu.co/~lctorress/MetNum/MeNuCl03.pdf
+##### https://fac.ksu.edu.sa/sites/default/files/numerical_analysis_9th.pdf
+##### http://numat.net/tutor/error_interp.pdf
+##### https://w3.ual.es/~aposadas/TeoriaErrores.pdf
+##### http://www.sc.ehu.es/nmwmigaj/instrum.htm
+##### https://tarwi.lamolina.edu.pe/~fmendiburu/index-filer/academic/script_numerico.htm
+
+Carlos Manuel Restrepo Riveros
+
+
+
+#_
+#_
+#_
+#_
+#_
+#_
+#_
+#_
+#_
+#_
+#_
+
+
+# ANEXOS
+
+## ERROR DE SUAVIZADO
+
+```{r}
+
+plot(xi,yi, pch=7, cex=0.5, col = "red", asp=1,xlab="X", ylab="Y", main="Mano No suavisada")
+LineaInterpolacion2<-function(inicio, final){
+  xi0 = xi[inicio:final]
+  yi0 = yi[inicio:final]
+  x0 <- seq(xi[inicio], xi[final], len=2)
+  y0 <- barylag(xi0, yi0, x0)
+  lines(x0, y0, col="blue")
+}
+#Borde Mano
+LineaInterpolacion2 (1,4)
+LineaInterpolacion2 (4,6)
+#Dedo der
+LineaInterpolacion2 (6,8)
+LineaInterpolacion2 (8,9)
+LineaInterpolacion2 (9,11)
+LineaInterpolacion2 (11,13)
+LineaInterpolacion2 (13,15)
+#Dedo Medio der
+LineaInterpolacion2 (15,18)
+LineaInterpolacion2 (18,24)
+LineaInterpolacion2 (24,28)
+#Dedo Medio Iz
+LineaInterpolacion2 (28,29)
+LineaInterpolacion2 (29,31)
+LineaInterpolacion2 (31,36)
+# Dedo Iz
+LineaInterpolacion2 (36,38)
+LineaInterpolacion2 (38,40)
+LineaInterpolacion2 (40,41)
+LineaInterpolacion2 (41,42)
+LineaInterpolacion2 (42,44)
+LineaInterpolacion2 (44,46)
+LineaInterpolacion2 (46,48)
+LineaInterpolacion2 (48,50)
+#Dedo Pulgar
+LineaInterpolacion2 (50,52)
+LineaInterpolacion2 (52,54)
+LineaInterpolacion2 (54,56)
+LineaInterpolacion2 (56,58)
+LineaInterpolacion2 (58,60)
+#Borde Mano
+LineaInterpolacion2 (60,61)
+LineaInterpolacion2 (61,62)
+LineaInterpolacion2 (62,64)
+LineaInterpolacion2 (64,65)
+
+```
+
+## CAMBIO DE ORIGEN, NUEVOS NODOS, Robuste
+
+```{r}
+
+xior=c(17, 11.71, 10.6, 14.8, 15.2, 15.6,12.3, 15.7, 17.0, 17.6, 17.52, 17.3, 16.8, 15.4, 14.83, 14.4, 14.5, 15.0, 15.1, 15.0, 14.9, 14.6, 14.3, 14.0, 13.9, 13.8, 13.5, 13.1, 13.0, 13.3, 13.2, 13.1, 12.9,15.2, 12.4, 11.9, 11.7, 11.6, 11.3, 10.9, 10.7, 10.6, 10.6, 10.1, 9.7, 9.4, 9.3, 9.6, 9.9, 10.1, 10.2, 10.3, 9.10, 8.6, 7.5, 7.0, 6.7, 6.6, 7.70, 8.00, 8.10, 8.40,9.20, 9.30, 10, 10.2, 10.3, 10.0, 9.50,5.80, 4.50, 4.30, 3.90,12.9)                                                                                                       
+yior=c(20.7, 12.33, 11.4, 12.33, 11.0,11.7,10.5, 10.22, 8.20, 7.10, 6.70, 6.60, 6.80, 8.30, 8.80, 9.30, 8.80, 6.30, 5.50, 5.00, 4.70, 4.60, 4.50, 4.90, 5.40, 5.80, 6.90, 8.20, 7.60, 5.80, 4.50, 4.30, 3.90,12.9, 4.20, 5.70, 7.00, 7.90, 8.20, 7.30, 6.70, 5.50, 5.10, 4.60, 4.7, 5.0, 5.5, 7.2, 7.8, 8.60, 9.40, 10.0, 10.7, 9.9,8.00, 8.10, 8.40,9.20, 9.30, 9.0, 9.1, 9.3, 9.7, 11.7, 12.3, 12.5, 13.0,13.91, 14.9, 16, 16.4, 16.8, 10.7, 11.0)
+
+plot(xior,yior, pch=7, cex=0.5, col = "red", asp=1,xlab="X", ylab="Y", main="Mano cambio Origen, nuevos nodos")
+
+
+
+
+```
+
+Se observa que se colapsa y no permite cambio de origne, modificar datos, o aumentar el intervalo al plantearlo con un metodo estadistico de limite 67.
+
+## Aumento de Cifras significativas.
+
+```{r}
+
+xic=c(
+14.65124252, 14.71123122, 14.61231123, 14.2381234252, 15.21231234252, 15.61234252, 15.71234252, 17.01234252, 17.61234252, 17.521234252, 17.31234252, 16.81234252, 15.41234252, 14.831234252, 14.41234252, 14.51234252, 15.01234252, 15.11234252, 15.01234252, 14.91234252, 14.61234252, 14.31234252, 14.01234252, 13.91234252, 13.81234252, 13.51234252, 13.11234252, 13.01234252, 13.31234252, 13.21234252, 13.11234252, 12.91234252, 12.41234252, 11.91234252, 11.71234252, 11.61234252, 11.31234252, 10.91234252, 10.71234252, 10.61234252, 10.61234252, 10.11234252, 9.71234252, 9.41234252, 9.31234252, 9.61234252, 9.91234252, 10.11234252, 10.21234252, 10.31234252, 9.101234252, 8.61234252, 7.51234252, 7.01234252, 6.71234252, 6.61234252, 7.701234252, 8.001234252, 8.101234252, 8.401234252,9.201234252, 9.301234252, 10.1234252, 10.21234252, 10.31234252, 10.01234252, 9.50)                                                                                                       
+yic=c(
+14.71234252, 14.331234252, 13.41234252, 12.331234252, 11.01234252, 10.51234252, 10.221234252, 8.201234252,  7.101234252, 6.701234252, 6.601234252, 6.801234252, 8.301234252, 8.801234252, 9.301234252, 8.801234252, 6.301234252, 5.501234252, 5.001234252, 4.701234252, 4.601234252, 4.501234252, 4.901234252, 5.401234252, 5.801234252, 6.901234252, 8.201234252, 7.601234252, 5.801234252, 4.501234252, 4.301234252, 3.901234252, 4.201234252, 5.701234252, 7.001234252, 7.901234252, 8.201234252, 7.301234252, 6.701234252, 5.501234252, 5.101234252, 4.601234252, 4.71234252, 5.01234252, 5.51234252, 7.21234252, 7.81234252, 8.601234252, 9.401234252, 10.01234252, 10.71234252, 9.91234252, 9.01234252, 9.11234252, 9.31234252, 9.71234252, 11.71234252, 12.31234252, 12.51234252, 13.01234252,13.911234252, 14.91234252, 16.1234252, 16.41234252, 16.81234252, 10.71234252, 11.0) 
+
+plot(xic,yic, pch=7, cex=0.5, col = "red", asp=1,xlab="X", ylab="Y", main="Mano con mas cifras")
+LineaInterpolacion3<-function(inicio, final){
+  xic0 = xic[inicio:final]
+  yic0 = yic[inicio:final]
+  x0 <- seq(xic[inicio], xic[final], len=20)
+  y0 <- barylag(xic0, yic0, x0)
+  lines(x0, y0, col="blue")
+}
+#Borde Mano
+LineaInterpolacion3 (1,4)
+LineaInterpolacion3 (4,6)
+#Dedo der
+LineaInterpolacion3 (6,8)
+LineaInterpolacion3 (8,9)
+LineaInterpolacion3 (9,11)
+LineaInterpolacion3 (11,13)
+LineaInterpolacion3 (13,15)
+#Dedo Medio der
+LineaInterpolacion3 (15,18)
+LineaInterpolacion3 (18,24)
+LineaInterpolacion3 (24,28)
+#Dedo Medio Iz
+LineaInterpolacion3 (28,29)
+LineaInterpolacion3 (29,31)
+LineaInterpolacion3 (31,36)
+# Dedo Iz
+LineaInterpolacion3 (36,38)
+LineaInterpolacion3 (38,40)
+LineaInterpolacion3 (40,41)
+LineaInterpolacion3 (41,42)
+LineaInterpolacion3 (42,44)
+LineaInterpolacion3 (44,46)
+LineaInterpolacion3 (46,48)
+LineaInterpolacion3 (48,50)
+#Dedo Pulgar
+LineaInterpolacion3 (50,52)
+LineaInterpolacion3 (52,54)
+LineaInterpolacion3 (54,56)
+LineaInterpolacion3 (56,58)
+LineaInterpolacion3 (58,60)
+#Borde Mano
+LineaInterpolacion3 (60,61)
+LineaInterpolacion3 (61,62)
+LineaInterpolacion3 (62,64)
+LineaInterpolacion3 (64,65)
+
+
+
+```
+
+Con base al modelo actual, aumentando las cifras, se evidencia una suavizado superior, por la calidad de los datos, con esto, podemos observar que mejoraria la interpolacion.
+
+
